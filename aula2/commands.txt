@@ -1,0 +1,11 @@
+cipher:
+openssl enc -e -des -in big-file.txt -out big-file.cipher.txt -k si  (-base64)
+
+fc
+
+hmac:
+openssl dgst -sha1 -hmac s1 big-file.txt
+
+hash functions:
+openssl dgst -sha512 big-file.txt
+openssl dgst -sha1 big-file.txt

@@ -1,0 +1,24 @@
+echo * hash criptografico
+echo message 1 > file1.txt
+echo message 2 > file2.txt
+
+openssl dgst -sha256 file1.txt
+
+echo * gerar chave privada e publica - https://www.openssl.org/docs/man1.0.2/apps/genrsa.html
+openssl genrsa -out key.pem 1024
+
+echo * extrair chave publica
+openssl rsa -in key.pem -out key.pub -pubout
+
+echo * cifrar mensagem - https://www.openssl.org/docs/man1.0.2/apps/rsautl.html
+echo message in a bottle > mock.txt
+openssl rsautl -in mock.txt -out mock.enc -pubin -inkey key.pub -encrypt
+
+echo * decifrar mensagem
+openssl rsautl -in mock.enc -out mock.dec -inkey key.pem -decrypt
+
+echo * assinar mensagem com SHA256 e RSA (por omissão)
+openssl dgst -sha256 -sign key.pem -out esquemas.sign 02.esquemas.pptx
+
+echo * verificar mensagem
+openssl dgst -sha256 -verify key.pub -signature esquemas.sign 02.esquemas.pdf
