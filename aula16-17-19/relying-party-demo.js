@@ -1,6 +1,11 @@
 const express = require('express')
 const app = express()
 var request = require('request');
+// more info at:
+// https://github.com/auth0/node-jsonwebtoken
+// https://jwt.io/#libraries
+var jwt = require('jsonwebtoken');
+
 const port = 3001
 
 // system variables where RP credentials are stored
@@ -22,6 +27,8 @@ app.get('/login', (req, resp) => {
     + 'client_id='+ CLIENT_ID +'&'
     // scope "openid email"
     + 'scope=openid%20email&'
+    // parameter state should bind the user's session to a request/response
+    + 'state=some-id-based-on-user-session&'
     // responde_type for "authorization code grant"
     + 'response_type=code&'
     // redirect uri used to register RP
@@ -29,6 +36,9 @@ app.get('/login', (req, resp) => {
 })
 
 app.get('/googlecallback', (req, resp) => {
+    //
+    // TODO: check if *state* is correct for this session
+
     console.log('making request to token endpoint')
     // https://www.npmjs.com/package/request#examples
     // content-type: application/x-www-form-urlencoded (URL-Encoded Forms)
@@ -45,14 +55,24 @@ app.get('/googlecallback', (req, resp) => {
                     grant_type: 'authorization_code'
                 }
             }, 
-            function(err,httpResponse,body){
-                console.log(body);
-                // send code and id_token to user-agent, just for debug purpose
+            function(err, httpResponse, body){
+                //
+                // TODO: check err and httpresponse
+
                 var json_response = JSON.parse(body);
+                // decode does not check signature
+                var jwt_payload = jwt.decode(json_response.id_token)
+
+                console.log(body);
+                console.log(jwt_payload);
+
                 resp.send(
-                    '<div> callback with code = ' + req.query.code + '</div>' +
-                    '<div> id_token = ' + json_response.id_token + '</div>'
-                );
+                    // send code and id_token to user-agent, *just* for this demo/debug
+                      '<div> callback with code = ' + req.query.code + '</div>'
+                    + '<div> id_token = ' + json_response.id_token + '</div>'
+                    // use 'email' claim from id_token
+                    + '<div> Olá <b>' + jwt_payload.email + '</b> </div>'
+                );    
             }
         );
 })
