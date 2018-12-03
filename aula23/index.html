@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <title>Java script and the XMLHttpRequest object</title>
+  </head>
+  <body>
+    <script>
+
+        function DynamicValue(port) {
+            // more info at 
+            // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/
+            req=new XMLHttpRequest();
+            var sendurl = "http://localhost:"+port+"/random";
+            req.open("GET",sendurl,true);
+            req.onreadystatechange = function() {
+                if (this.readyState == 4) {
+                    OneMoreDiv("Random = " + this.responseText);
+                }
+            };
+            req.send();
+        }
+        
+        function OneMoreDiv(newText) {
+            var div = document.createElement("DIV");
+            var text = document.createTextNode(newText);
+            div.appendChild(text);
+            var container = document.getElementById("container")
+            container.appendChild(div);
+        }
+    </script>
+    <form>
+        <input type="button" value="Button 1" onclick="OneMoreDiv('new text')">
+        <input type="button" value="Button 2" onclick="DynamicValue(3000)">
+        <input type="button" value="Button 3" onclick="DynamicValue(5000)">
+    </form>
+    <div id="container"></div>
+  </body>
+</html>
